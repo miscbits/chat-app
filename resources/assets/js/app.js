@@ -11,16 +11,29 @@ window.Vue = require('vue');
 
 Vue.component('chat-messages', require('./components/ChatMessages.vue'));
 Vue.component('chat-form', require('./components/ChatForm.vue'));
+Vue.component('online-users', require('./components/OnlineUsers.vue'));
 
 const app = new Vue({
     el: '#app',
 
     data: {
-        messages: []
+        messages: [],
+        users: []
     },
 
     created() {
-        Echo.private('chat')
+        Echo.join('chat')
+          .here((users) => {
+            this.users = users
+          })
+          .joining((user) => {
+            this.users.push(user);
+          })
+          .leaving((user) => {
+            this.users = this.users.filter(function(item) {
+                return item !== user;
+            });
+          })
           .listen('MessageSent', (e) => {
             this.messages.push({
               message: e.message.message,
@@ -31,6 +44,12 @@ const app = new Vue({
     },
 
     methods: {
+        fetchMessages() {
+            axios.get('/messages').then(response => {
+                this.messages = response.data;
+            });
+        },
+
         addMessage(message) {
             this.messages.push(message);
 

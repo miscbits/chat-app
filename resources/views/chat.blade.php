@@ -19,6 +19,10 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-2">
+            <h3>Online Users</h3>
+            <online-users :users="users"></online-users>
+        </div>
     </div>
 </div>
 @endsection
